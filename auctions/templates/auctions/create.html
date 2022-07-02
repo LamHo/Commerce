@@ -1,0 +1,14 @@
+<!DOCTYPE hmtl>
+<html>
+    <head>
+        <title>Create a listing</title>
+    </head>
+    <body>
+        <h1>Create a listing:</h1>
+        <form action ="{% url 'create' %}" method = "POST"  enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form.as_p}}
+            <input type = "submit" value = "Create">
+        </form>
+    </body>
+</html>

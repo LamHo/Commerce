@@ -1,0 +1,130 @@
+<!DOCTYPE hmtl>
+<html>
+    <head>
+        <title>{{listing.name}}</title>
+        <style>
+            .button{
+                background-color: #4d90fe;
+                border: 1px solid #3079ed;
+                color: #fff;    
+                font-size: 11px;
+                font-weight: bold;
+                text-align: center;
+                white-space: nowrap;
+                line-height: 100%;
+                height: 30px;
+                min-width: 60px;
+                border-radius: 2px;
+            }
+        </style>
+    </head>
+    <body>
+        {% if not is_active %}
+            <h1><i>Congratulations: You have won this listing!</i></h1>
+            <h1>Listing: {{listing.name}}</h1>
+            <div style = "padding-left: 20px;">
+                <div>
+                    <div style = "display: inline-block;">
+                        <img src = "{{listing.image.url}}" alt = "listing's image" style ="height: 300px; max-width: 300px;">
+                    </div>
+                   
+                </div>
+                <div>
+                    <br>
+                    <h3><i>{{listing.description}}</i></h3>
+                    <h2>Price: ${{listing.bid.how_much}}</h2>
+                    
+                    <br><br>
+                    {% for comment in comments %}
+                                <li><b>{{comment.owner.username}}:</b> {{comment.content}}</li>
+                    {% empty %}
+                                No comments yet.
+                    {% endfor %}
+                    <h2>Details</h2>
+                    <ul>
+                        <li>Listed by: {{listing.owner.username}}</li>
+                        <li>Category: <a href = "{% url 'category_listing' listing.category.name %}">{{listing.category.name}}</a></li>
+                    </ul>
+                </div>
+            </div>
+        {% else %}
+            <h1>Listing: {{listing.name}}</h1>
+            {% if user.is_authenticated %}
+                {% if not already  %}
+                    <form action = "{% url 'watchlist' %}" method = "POST"> {% csrf_token %}
+                        <input type="hidden"  name = "state" value = "add">
+                        <input type="hidden"  name = "added_listing_id" value = {{listing.id}}>
+                        <input type="submit" value="Add to watchlist">
+                    </form>
+                {% else %}
+                    <form action = "{% url 'watchlist' %}" method = "POST"> {% csrf_token %}
+                        <input type="hidden"  name = "state" value = "remove">
+                        <input type="hidden"  name = "removed_listing_id" value = {{listing.id}}>
+                        <input type="submit" value="Remove from watchlist">
+                    </form>
+                {% endif %}
+                <br><br>
+            {% endif %}
+            
+            <div style = "padding-left: 20px;">
+                <div>
+                    <div style = "display: inline-block;">
+                        <img src = "{{listing.image.url}}" alt = "listing's image" style ="height: 300px; max-width: 300px;">
+                    </div>
+                    {% if is_owner %}
+                        <div style = "display: inline-block;">
+                            <form action = "", method = "POST">  {% csrf_token %}
+                                <input type="hidden"  name = "state" value = "close_listing">
+                                <input type="hidden"  name = "listing_id" value = {{listing.id}}>
+                                <input class = "button" type = submit value = "Close this listing">
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <br>
+                    <h3><i>{{listing.description}}</i></h3>
+                    <h2>Price: ${{listing.bid.how_much}}</h2>
+                    {% if is_bidder %}
+                        Your bid is the current bid.
+                    {% else %}
+                        {{listing.bid.owner.username}}'s bid is the current bid.
+                    {% endif %}
+                    <br><br>
+                    {% if user.is_authenticated %}
+                        <form action = "", method = "POST">  {% csrf_token %}
+                            <input type="hidden"  name = "state" value = "place_bid">
+                            <input type="hidden"  name = "listing_id" value = {{listing.id}}>
+                            <input type = "text", name = "bid", placeholder= "Place a bid"> <br><br>
+                            <input class = "button" type = submit value = "Place Bid">
+                            {% if error%}
+                                <h3 style = "color: red"><i>Error: The bid must be greater than the current price!</i></h3>
+                            {% endif %}
+                        </form>
+                        <br>
+                        <h2>Comments: </h2>
+                        <ul>
+                            {% for comment in comments %}
+                                <li><b>{{comment.owner.username}}:</b> {{comment.content}}</li>
+                            {% empty %}
+                                No comments yet.
+                            {% endfor %}
+                        </ul>
+                        
+                        <form action = "", method = "POST">  {% csrf_token %}
+                            <input type="hidden"  name = "state" value = "comment">
+                            <input type="hidden"  name = "listing_id" value = {{listing.id}}>
+                            <input type = "text", name = "comment", placeholder= "Write a comment"> <br><br>
+                            <input class = "button" type = submit value = "Comment">
+                        </form>
+                    {% endif %}
+                    <h2>Details</h2>
+                    <ul>
+                        <li>Listed by: {{listing.owner.username}}</li>
+                        <li>Category: <a href = "{% url 'category_listing' listing.category.name %}">{{listing.category.name}}</a></li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    </body>
+</html>
