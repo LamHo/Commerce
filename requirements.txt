@@ -1,0 +1,1 @@
+Install Pillow for media upload support: pip install Pillow
